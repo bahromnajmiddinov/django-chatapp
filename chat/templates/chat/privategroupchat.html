@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}<link rel="stylesheet" href="{% static 'css/inbox.css' %}">{% endblock style %}
+
+{% block content %}
+<section class="section-inbox">
+<div class="app">
+    {% include 'includes/header.html' %}
+    <div class="wrapper">
+     <div class="conversation-area">
+      {% include 'includes/chats.html' %}
+      <button class="add"></button>
+      <div class="overlay"></div>
+     </div>
+     <div class="chat-area">
+      <div class="chat-area-header">
+       <div class="chat-area-title">{{ group_chat.name }}</div>
+       <div id="online-members-count">{{ online_members }} online</div>
+       <div class="chat-area-group">
+        {% for member in member3 %}
+        <img class="chat-area-profile" src="{{ member.get_avatar_url }}" alt="" />
+        {% endfor %}
+        {% if all_members_count > 3 %}
+        <span>+{{ all_members_count|add:'-3' }}</span>
+        {% endif %}
+       </div>
+      </div>
+      <div class="chat-area-main">
+        {% for message in chat_messages %}
+        <div class="chat-msg {% if request.user == message.sender %}owner{% endif %}">
+          <div class="chat-msg-profile">
+            <img class="chat-msg-img" src="{% if message.sender.get_avatar_url %}{{message.sender.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" />
+            <div class="chat-msg-date">Message seen 1.22pm</div>
+          </div>
+          <div class="chat-msg-content">
+            <div class="chat-msg-text">{{ message.message }}</div>
+        </div>
+      </div>
+        {% endfor %}
+    </div>
+    {% if is_member %}
+      <div class="chat-area-footer">
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video">
+        <path d="M23 7l-7 5 7 5V7z" />
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <path d="M21 15l-5-5L5 21" /></svg>
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v8M8 12h8" /></svg>
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
+        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
+       <input id="text-data" type="text" placeholder="Type something here..." />
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></svg>
+        <button id="sendButton">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 664 663">
+            <path
+              fill="none"
+              d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+            ></path>
+            <path
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="33.67"
+              stroke="#6c6c6c"
+              d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      {% else %}
+      <div class="chat-area-footer">
+        <form method="POST" class="subscribe-btn">
+          {% csrf_token %}
+          <button type="submit">subscribe</button>
+        </form>
+      </div>
+     {% endif %}
+    </div>
+     {% include 'includes/detail-area.html' %}
+    </div>
+</div>
+</section>
+   {% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/inbox.js' %}"></script>
+<script>
+  const url = `ws://127.0.0.1:8000/websocket/private-group/${ '{{ username }}' }`;
+  const chat_websocket = new WebSocket(url);
+  const sendBTN = document.getElementById('sendButton');
+  const textData = document.getElementById('text-data');
+  const chatArea = document.getElementsByClassName('chat-area-main')[0];
+
+  const newMessage = chatArea.lastElementChild;
+  newMessage.scrollIntoView({ behavior: "smooth" });
+
+  sendBTN.addEventListener('click', () => {
+    let message = textData.value;
+    chat_websocket.send(`{"type": "message", "message": "${ message }"}`);
+    textData.value = '';
+  });
+
+  chat_websocket.onmessage = (event) => {
+    let data = JSON.parse(event.data);
+    let type = data.type;
+    console.log(type);
+    if (type === 'online_status_handler') {
+      let online = data.online_members;
+      let oMC = document.getElementById('online-members-count');
+      oMC.innerHTML = online + ' online';
+
+    } else if (type === 'receiver') {
+      let message = data.message;
+      chatArea.insertAdjacentHTML("beforeend", message);
+  
+      const newMessage = chatArea.lastElementChild;
+      newMessage.scrollIntoView({ behavior: "smooth" });
+    }
+
+  };
+
+</script>
+{% endblock script %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero">
+    <div class="secton-center hero-section">
+        <div class="card">
+            <h1 class="opening-text">Welcom To The ChatAPP</h1>
+
+            <div class="button-group" onclick="redirectToOtherPage('{% url 'chatapp-home' %}')">
+                <button> START
+                </button>                           
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block script %}
+<script>
+    function redirectToOtherPage(url) {
+        window.location.href = url;
+    }  
+</script>
+{% endblock script %}

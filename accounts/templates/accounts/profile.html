@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}<link rel="stylesheet" href="{% static 'css/inbox.css' %}">{% endblock style %}
+
+{% block content %}
+<section class="section-inbox">
+<div class="app">
+    {% include 'includes/header.html' %}
+    <div class="wrapper center">
+        <div class="profile">
+            <div class="profile-image">
+                <img class="user-profile" src="{% if user.get_avatar_url %}{{user.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" class="account-profile" alt="">
+            </div>
+            <div class="profile-info">
+                <p class="profile-name">
+                    {{ user.full_name }}
+                    {% if user.username %}
+                        <span class="profile-username">@{{ user.username }}</span>
+                    {% endif %}
+                </p>
+                {% if user.description %}
+                <p class="profile-description">
+                    {{ user.description }}
+                </p>
+                {% endif %}
+                <p class="profile-email"><b>Email:</b> {{ user.email }}</p>
+                <p class="profile-phone"><b>Phone Number:</b> {{ user.phone_number }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/inbox.js' %}"></script>
+{% endblock script %}

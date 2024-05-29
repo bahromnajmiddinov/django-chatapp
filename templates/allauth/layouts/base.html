@@ -1,0 +1,22 @@
+{% comment %} {% extends 'base.html' %} {% endcomment %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/inbox.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form-btn.css' %}">
+{% endblock style %}
+
+<section class="section-inbox">
+    <div class="app">
+        <div class="wrapper center center-x">
+            <div class="form-container">
+                {% block content %}{% endblock content %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block script %}
+<script src="{% static 'js/inbox.js' %}"></script>
+{% endblock script %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}<link rel="stylesheet" href="{% static 'css/inbox.css' %}">{% endblock style %}
+
+{% block content %}
+<section class="section-inbox">
+<div class="app">
+    {% include 'includes/header.html' %}
+    <div class="wrapper center center-x">
+        <h2>
+            To continue, you need to subscripe
+            <form method="POST">
+                {% csrf_token %}
+                <button>Subscripe</button>
+            </form>
+        </h2>
+    </div>
+</div>
+</section>
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/inbox.js' %}"></script>
+{% endblock script %}

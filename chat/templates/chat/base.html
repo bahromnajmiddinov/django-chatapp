@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}<link rel="stylesheet" href="{% static 'css/inbox.css' %}">{% endblock style %}
+
+{% block content %}
+<section class="section-inbox">
+<div class="app">
+    {% include 'includes/header.html' %}
+    <div class="wrapper">
+     <div class="conversation-area">
+      {% include 'includes/chats.html' %}
+      <button class="add"></button>
+      <div class="add-btn-group">
+        <form action="{% url 'create-public-group' %}">
+          <input type="hidden" name="type" value='public'>
+          <button class="add-chat">Public Group</button>
+        </form>
+        <form action="{% url 'create-private-group' %}">
+          <input type="hidden" name="type" value='private'>
+          <button class="add-chat">Private Group</button>
+        </form>
+      </div>
+      <div class="overlay"></div>
+     </div>
+     {% block chatarea %}{% endblock chatarea %}
+    </div>
+</div>
+</section>
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/inbox.js' %}"></script>
+{% endblock script %}
