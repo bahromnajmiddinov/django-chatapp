@@ -1,7 +1,7 @@
 <div class="chat-msg {% if message_owner == maybe_owner %}owner{% endif %}">
     <div class="chat-msg-profile">
      <img class="chat-msg-img" src="{% if message_owner.get_avatar_url %}{{message_owner.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="">
-     <div class="chat-msg-date">Message seen 2.45pm</div>
+     {% comment %} <div class="chat-msg-date">Message seen 2.45pm</div> {% endcomment %}
     </div>
     <div class="chat-msg-content">
      <div class="chat-msg-text">{{ message }}</div>

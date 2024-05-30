@@ -13,6 +13,18 @@ def chatapp_home(request):
 
 
 @login_required(login_url='account_login')
+def search_chats(request):
+    query = request.GET.get('q')
+    chats = Chat.objects.filter(Q(username__icontains=query) | Q(name__icontains=query))
+    
+    context = {
+        'chats': chats,
+    }
+    
+    return render(request, 'chat/search.html', context)
+
+
+@login_required(login_url='account_login')
 def single_chat(request, user_id):
     user = Account.objects.get(pk=user_id)
     single_chat = Chat.objects.filter(Q(members__in=[request.user, user]) & Q(type='OO')).first()
@@ -23,6 +35,11 @@ def single_chat(request, user_id):
         'single_chat_messages': single_chat_messages,
     }
     return render(request, 'chat/single_chat.html', context)
+
+
+@login_required(login_url='account_login')
+def create_group(request):
+    pass
 
 
 @login_required(login_url='account_login')
@@ -107,7 +124,6 @@ def public_group_chat(request, group_username):
     
     all_members_count = group_chat.members.count()
     member3 = group_chat.members.all()[:3]
-    group_chat.online_members.add(request.user)
     online_members = group_chat.online_members.count()
     
     if request.method == 'POST':
@@ -131,16 +147,17 @@ def private_group_chat(request, group_username):
     group_chat = get_object_or_404(Chat, username=group_username, type='PR')
     is_member = group_chat.members.filter(pk=request.user.id).exists()
     
+    if request.method == 'POST':
+        group_chat.members.add(request.user)
+        
     all_members_count = group_chat.members.count()
     member3 = group_chat.members.all()[:3]
-    group_chat.online_members.add(request.user)
     online_members = group_chat.online_members.count()
     
+        
     if not is_member:
-        if request.method == 'POST':
-            group_chat.members.add(request.user)
-        else:
-            return render(request, 'chat/subscripe_to_group.html')
+        return render(request, 'chat/subscripe_to_group.html')
+    
     chat_messages = group_chat.message.all()
     context = {
         'group_chat': group_chat,

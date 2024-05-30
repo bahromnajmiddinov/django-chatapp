@@ -63,9 +63,9 @@ class PublicGroupChatConsumer(WebsocketConsumer):
         
         self.accept()
         
+        async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
         self.public_group.online_members.add(self.user)
         self.online_status(self.public_group.online_members.count())
-        async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
             
     def receive(self, text_data):
         text_data = json.loads(text_data)['message']
@@ -118,9 +118,9 @@ class PrivateGroupChatConsumer(WebsocketConsumer):
         
         self.accept()
         
+        async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
         self.public_group.online_members.add(self.user)
         self.online_status(self.public_group.online_members.count())
-        async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
             
     def receive(self, text_data):
         text_data = json.loads(text_data)['message']
