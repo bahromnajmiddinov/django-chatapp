@@ -1,4 +1,7 @@
 from django.db import models
+from django.urls import reverse
+
+from django_currentuser.middleware import get_current_user
 from accounts.models import Account
 
 import shortuuid
@@ -27,6 +30,18 @@ class Chat(models.Model):
     
     def get_last_message(self):
         return self.message.last()
+    
+    @property
+    def get_absolute_url(self):
+        url = None
+        if self.type == 'PR':
+            url = reverse('private-chat', kwargs={'group_username': self.username})
+        elif self.type == 'PB':
+            url = reverse('public-chat', kwargs={'group_username': self.username})
+        elif self.type == 'OO':
+            other_user_id = self.members.exclude(id=get_current_user().id).first().id
+            url = reverse('single-chat', kwargs={'user_id': other_user_id})
+        return url
     
 
 class SingleChatMessage(models.Model):

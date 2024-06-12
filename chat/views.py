@@ -15,10 +15,16 @@ def chatapp_home(request):
 @login_required(login_url='account_login')
 def search_chats(request):
     query = request.GET.get('q')
-    chats = Chat.objects.filter(Q(username__icontains=query) | Q(name__icontains=query))
+    chats, other_user_chats = [], []
+    name = 'search'
+    if query:
+        chats = Chat.objects.filter(Q(username__icontains=query) | Q(name__icontains=query)).filter(Q(type='PB') | Q(type='OO'))
+        other_user_chats = Account.objects.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(username__icontains=query))
     
     context = {
         'chats': chats,
+        'other_user_chats': other_user_chats,
+        'name': name,
     }
     
     return render(request, 'chat/search.html', context)
@@ -26,15 +32,30 @@ def search_chats(request):
 
 @login_required(login_url='account_login')
 def single_chat(request, user_id):
+    if request.user.id == int(user_id):
+        return redirect('my_profile')
+    
     user = Account.objects.get(pk=user_id)
     single_chat = Chat.objects.filter(Q(members__in=[request.user, user]) & Q(type='OO')).first()
-    single_chat_messages = single_chat.message.all()
+    single_chat_messages = []
+    if single_chat:
+        single_chat_messages = single_chat.message.all()
 
     context = {
         'single_chat_user': user,
         'single_chat_messages': single_chat_messages,
     }
     return render(request, 'chat/single_chat.html', context)
+
+
+@login_required(login_url='account_login')
+def delete_single_chat(request, user_id):
+    user = Account.objects.get(pk=user_id)
+    single_chat = Chat.objects.filter(Q(members__in=[request.user, user]) & Q(type='OO')).first()
+    if single_chat:
+        single_chat.delete()
+    
+    return redirect('chatapp-home')
 
 
 @login_required(login_url='account_login')
@@ -82,6 +103,15 @@ def create_private_group(request):
     }
     
     return render(request, 'chat/create_group.html', context)
+
+
+@login_required(login_url='account_login')
+def delete_group(request, group_username):
+    group = get_object_or_404(Chat, username=group_username)
+    if group.owner == request.user:
+        group.delete()
+    
+    return redirect('chatapp-home')
 
 
 @login_required(login_url='account_login')
@@ -145,11 +175,11 @@ def public_group_chat(request, group_username):
 @login_required(login_url='account_login')
 def private_group_chat(request, group_username):
     group_chat = get_object_or_404(Chat, username=group_username, type='PR')
-    is_member = group_chat.members.filter(pk=request.user.id).exists()
     
     if request.method == 'POST':
         group_chat.members.add(request.user)
         
+    is_member = group_chat.members.filter(pk=request.user.id).exists()
     all_members_count = group_chat.members.count()
     member3 = group_chat.members.all()[:3]
     online_members = group_chat.online_members.count()

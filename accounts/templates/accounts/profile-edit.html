@@ -11,7 +11,7 @@
     <div class="wrapper center">
         <div class="profile">
             <div class="profile-image">
-                <img class="user-profile" src="{% if request.user.get_avatar_url %}{{request.user.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" class="account-profile" alt="">
+                <img class="user-profile" src="{{request.user.get_avatar_url}}" alt="" class="account-profile" alt="">
             </div>
             <div class="form-container">
                 <form class="form" method="POST" enctype="multipart/form-data">

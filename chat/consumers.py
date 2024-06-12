@@ -15,7 +15,7 @@ class ChatConsumer(WebsocketConsumer):
         self.other_user_id = self.scope['url_route']['kwargs']['user_id']
         self.other_user = get_object_or_404(Account, pk=self.other_user_id)
         self.user = self.scope['user']
-        self.chat_name = None
+        self.chat_username = None
         
         self.accept()
 
@@ -24,11 +24,10 @@ class ChatConsumer(WebsocketConsumer):
         text_data = json.loads(text_data)['message']
         
         chat = Chat.objects.filter(Q(members__in=[self.user, self.other_user]) & Q(type='OO')).first()
-        self.chat_name = chat.username
         if chat is None:
             chat = Chat.objects.create(type='OO', owner=self.user, name='single-chat')
             chat.members.add(*[self.user, self.other_user])
-        
+        self.chat_username = chat.username
         SingleChatMessage.objects.create(chat=chat, sender=self.user, message=text_data)
         
         data = {
@@ -41,8 +40,8 @@ class ChatConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_send)(chat.username, data)
     
     def disconnect(self, code):
-        if self.chat_name:
-            async_to_sync(self.channel_layer.group_discard)(self.chat_name, self.channel_name)
+        if self.chat_username:
+            async_to_sync(self.channel_layer.group_discard)(self.chat_username, self.channel_name)
     
     def receiver(self, data):
         chat_user = get_object_or_404(Account, pk=data.get('sender_id'))
@@ -64,12 +63,12 @@ class PublicGroupChatConsumer(WebsocketConsumer):
         self.accept()
         
         async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
-        self.public_group.online_members.add(self.user)
-        self.online_status(self.public_group.online_members.count())
+        if not self.user in self.public_group.online_members.all():
+            self.public_group.online_members.add(self.user)
+        self.online_status()
             
     def receive(self, text_data):
         text_data = json.loads(text_data)['message']
-        
         message = SingleChatMessage.objects.create(chat=self.public_group, message=text_data, sender=self.user)
         
         data = {
@@ -83,8 +82,9 @@ class PublicGroupChatConsumer(WebsocketConsumer):
         
     
     def disconnect(self, code):
-        self.public_group.online_members.remove(self.user)
-        self.online_status(self.public_group.online_members.count())
+        if self.user in self.public_group.online_members.all():
+            self.public_group.online_members.remove(self.user)
+        self.online_status()
         async_to_sync(self.channel_layer.group_discard)(self.group_username, self.channel_name)
     
     def receiver(self, data):
@@ -96,15 +96,15 @@ class PublicGroupChatConsumer(WebsocketConsumer):
         data = json.dumps(data)
         self.send(data)
     
-    def online_status(self, online_members):
+    def online_status(self):
         data = {
             'type': 'online_status_handler',
-            'online_members': online_members,
         }
         
         async_to_sync(self.channel_layer.group_send)(self.group_username, data)
         
     def online_status_handler(self, data):
+        data['online_members'] = self.public_group.online_members.count()
         data = json.dumps(data)
         
         self.send(data)
@@ -114,18 +114,18 @@ class PrivateGroupChatConsumer(WebsocketConsumer):
     def connect(self):
         self.group_username = self.scope['url_route']['kwargs']['group_username']
         self.user = self.scope['user']
-        self.public_group = get_object_or_404(Chat, username=self.group_username, type='PR')
+        self.private_group = get_object_or_404(Chat, username=self.group_username, type='PR')
         
         self.accept()
         
         async_to_sync(self.channel_layer.group_add)(self.group_username, self.channel_name)
-        self.public_group.online_members.add(self.user)
-        self.online_status(self.public_group.online_members.count())
+        self.private_group.online_members.add(self.user)
+        self.online_status()
             
     def receive(self, text_data):
         text_data = json.loads(text_data)['message']
         
-        message = SingleChatMessage.objects.create(chat=self.public_group, message=text_data, sender=self.user)
+        message = SingleChatMessage.objects.create(chat=self.private_group, message=text_data, sender=self.user)
         
         data = {
             'type': 'receiver',
@@ -138,8 +138,8 @@ class PrivateGroupChatConsumer(WebsocketConsumer):
         
     
     def disconnect(self, code):
-        self.public_group.online_members.remove(self.user)
-        self.online_status(self.public_group.online_members.count())
+        self.private_group.online_members.remove(self.user)
+        self.online_status()
         async_to_sync(self.channel_layer.group_discard)(self.group_username, self.channel_name)
     
     def receiver(self, data):
@@ -151,15 +151,15 @@ class PrivateGroupChatConsumer(WebsocketConsumer):
         data = json.dumps(data)
         self.send(data)
     
-    def online_status(self, online_members):
+    def online_status(self):
         data = {
             'type': 'online_status_handler',
-            'online_members': online_members,
         }
         
         async_to_sync(self.channel_layer.group_send)(self.group_username, data)
         
     def online_status_handler(self, data):
+        data['online_members'] = self.private_group.online_members.count()
         data = json.dumps(data)
         
         self.send(data)

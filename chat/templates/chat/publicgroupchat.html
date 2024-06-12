@@ -12,12 +12,22 @@
      <div class="conversation-area">
       {% include 'includes/chats.html' %}
       <button class="add"></button>
+      <div class="add-btn-group">
+        <form action="{% url 'create-public-group' %}">
+          <input type="hidden" name="type" value='public'>
+          <button class="add-chat">Public Group</button>
+        </form>
+        <form action="{% url 'create-private-group' %}">
+          <input type="hidden" name="type" value='private'>
+          <button class="add-chat">Private Group</button>
+        </form>
+      </div>
       <div class="overlay"></div>
      </div>
      <div class="chat-area">
       <div class="chat-area-header">
        <div class="chat-area-title">{{ group_chat.name }}</div>
-       <div class="online-members-count">{{ online_members }} online</div>
+       <div id="online-members-count">{{ online_members }} online</div>
        <div class="chat-area-group">
         {% for member in member3 %}
         <img class="chat-area-profile" src="{{ member.get_avatar_url }}" alt="" />
@@ -89,7 +99,7 @@
   const chatArea = document.getElementsByClassName('chat-area-main')[0];
 
   const newMessage = chatArea.lastElementChild;
-  newMessage.scrollIntoView({ behavior: "smooth" });
+  if (newMessage) newMessage.scrollIntoView({ behavior: "smooth" });
 
   sendBTN.addEventListener('click', () => {
     let message = textData.value;
@@ -105,7 +115,6 @@
       let online = data.online_members;
       let oMC = document.getElementById('online-members-count');
       oMC.innerHTML = online + ' online';
-
     } else if (type === 'receiver') {
       let message = data.message;
       chatArea.insertAdjacentHTML("beforeend", message);

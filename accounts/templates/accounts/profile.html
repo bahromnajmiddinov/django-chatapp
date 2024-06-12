@@ -11,7 +11,7 @@
     <div class="wrapper center">
         <div class="profile">
             <div class="profile-image">
-                <img class="user-profile" src="{% if user.get_avatar_url %}{{user.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" class="account-profile" alt="">
+                <img class="user-profile" src="{{ user.get_avatar_url }}" alt="" class="account-profile" alt="">
             </div>
             <div class="profile-info">
                 <p class="profile-name">
@@ -20,6 +20,7 @@
                         <span class="profile-username">@{{ user.username }}</span>
                     {% endif %}
                 </p>
+                {% if request.user != user %}<a href="{% url 'single-chat' user.id %}" target="_blank"><button style="margin: 1rem 0; width: 100%;">Chat</button></a>{% endif %}
                 {% if user.description %}
                 <p class="profile-description">
                     {{ user.description }}

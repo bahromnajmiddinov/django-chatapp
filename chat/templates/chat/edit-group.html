@@ -31,6 +31,8 @@
                     {% endfor %}
                     <button type="submit" class="form-submit">Save</button>
                 </form>
+                <a href="{% url 'delete-group' group.username %}" style="color: red;">Delete Group</a>
+                <p>After deleting group we can't back lost data</p>
             </div>
         </div>
     </div>

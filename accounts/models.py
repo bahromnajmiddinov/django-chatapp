@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.urls import reverse
+from django.templatetags.static import static
 
 
 class MyAccountManager(BaseUserManager):
@@ -79,5 +81,9 @@ class Account(AbstractBaseUser):
     def get_avatar_url(self):
         if self.avatar:
             return self.avatar.url
-        return '/media/images/default.jpg'
+        return static('/img/default.jpg')
+    
+    @property
+    def get_absolute_url(self):
+        return reverse('profile', kwargs={'username': self.username})
     

@@ -10,13 +10,12 @@
     {% include 'includes/header.html' %}
     <div class="wrapper">
         <div class="conversation-area">
-        {% for chat in chats %}
-            {% load  get_users_chats %}
             {% load get_id_or_username %}
+            {% for chat in chats %}
             {% if chat.type == 'OO' %}
             {% with other_user=chat|get_id_or_username:request.user.id %}
-            <a class="msg online {% if single_chat_user.id == other_user.id %}active{% endif %}" href="{% url 'single-chat' other_user.id %}">
-                <img class="msg-profile" src="{% if other_user.get_avatar_url %}{{ other_user.get_avatar_url }}{% else %}/media/images/default.jpg{% endif %}" alt="" />
+            <a class="msg online {% if single_chat_user.id == other_user.id %}active{% endif %}" href="{{ chat.get_absolute_url }}">
+                <img class="msg-profile" src="{{ other_user.get_avatar_url }}" alt="" />
                 <div class="msg-detail">
                     <div class="msg-username">{{ other_user.full_name }}</div>
                     <div class="msg-content">
@@ -27,7 +26,7 @@
             </a>
             {% endwith %}
             {% else %}
-            <a class="msg {% if group_chat.username == chat.username %}active{% endif %}" href="{% if chat.type == 'PB' %}{% url 'public-chat' chat.username %}{% else %}{% url 'private-chat' chat.username %}{% endif %}">
+            <a class="msg {% if group_chat.username == chat.username %}active{% endif %}" href="{{ chat.get_absolute_url }}">
                 {% if chat.avatar %}
                 <img class="msg-profile group" src="{{ chat.avatar.url }}" alt="" />
                 {% else %}
@@ -46,8 +45,21 @@
                 </div>
             </a>
             {% endif %}
-        {% endfor %}
+            {% endfor %}
         </div>
+        {% if other_user_chats %}
+        <div>
+            <h3 style="margin: 1rem;">Other Profiles</h3>
+            {% for other_user_chat in other_user_chats %}
+            <a class="msg online" href="{{ other_user_chat.get_absolute_url }}">
+                <img class="msg-profile" src="{{ other_user_chat.get_avatar_url }}" alt="" />
+                <div class="msg-detail">
+                    <div class="msg-username">{{ other_user_chat.full_name }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </div>
 </section>
