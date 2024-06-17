@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 3rd party
+    'cloudinary_storage',
+    'cloudinary',
     'admin_honeypot',
     'allauth',
     'allauth.account',
@@ -156,7 +158,16 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media/'
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media/'
+    
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUD_NAME'),
+    'API_KEY': env('CLOUD_API_KEY'),
+    'API_SECRET': env('CLOUD_API_SECRET'),
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -172,7 +183,7 @@ ACCOUNT_USER_MODEL_MANAGER = 'accounts.MyAccountManager'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-ACCOUNT_EMAIL_VERIFICATION = False
+ACCOUNT_EMAIL_VERIFICATION = True
 
 if DEBUG:
     CHANNEL_LAYERS = {

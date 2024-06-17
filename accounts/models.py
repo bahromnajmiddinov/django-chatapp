@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.urls import reverse
 from django.templatetags.static import static
 
+from django_resized import ResizedImageField
+
 
 class MyAccountManager(BaseUserManager):
     def create_user(self, first_name, last_name, username, email, password=None):
@@ -41,7 +43,7 @@ class MyAccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser):
-    avatar          = models.ImageField(upload_to='images/account/avatar/', blank=True, null=True)
+    avatar          = ResizedImageField(size=[600, 600], quality=85, upload_to='images/account/avatar/', blank=True, null=True)
     first_name      = models.CharField(max_length=50)
     last_name       = models.CharField(max_length=50)
     username        = models.CharField(max_length=50, unique=True)

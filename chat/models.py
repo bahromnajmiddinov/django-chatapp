@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse
 
 from django_currentuser.middleware import get_current_user
+from django_resized import ResizedImageField
+
 from accounts.models import Account
 
 import shortuuid
@@ -17,7 +19,7 @@ class Chat(models.Model):
     owner = models.ForeignKey(Account, related_name='chat', null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=150)
     username = models.CharField(max_length=25, unique=True, default=shortuuid.uuid)
-    avatar = models.ImageField(upload_to='images/chat/avatar/', null=True, blank=True)
+    avatar = ResizedImageField(size=[600, 600], quality=85, upload_to='images/chat/avatar/', null=True, blank=True)
     members = models.ManyToManyField(Account, blank=True, related_name='chat_members')
     online_members = models.ManyToManyField(Account, blank=True, related_name='chat_online_members')
     type = models.CharField(choices=CHAT_TYPE_CHOICES, max_length=2, default='PR')
