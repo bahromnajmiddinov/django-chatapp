@@ -30,21 +30,16 @@
       </div>
       <div class="chat-area-main">
         {% for message in single_chat_messages %}
-        <div class="chat-msg {% if request.user == message.sender %}owner{% endif %}">
-          <div class="chat-msg-profile">
-            <img class="chat-msg-img" src="{% if message.sender.get_avatar_url %}{{message.sender.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" />
-            {% comment %} <div class="chat-msg-date">Message seen 1.22pm</div> {% endcomment %}
-          </div>
-          <div class="chat-msg-content">
-            <div class="chat-msg-text">{{ message.message }}</div>
-          </div>
-        </div>
+        {% include 'chat/snippets/single-message.html' %}
         {% endfor %}
-
       </div>
       <div class="chat-area-footer">
-       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
-        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
+        <label for="file-input">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+         </svg>
+       </label>
+       <input style="display: none;" type="file" id="file-input" />
        <input id="text-data" type="text" placeholder="Type something here..." />
        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile">
         <circle cx="12" cy="12" r="10" />
@@ -69,7 +64,7 @@
      <div class="detail-area">
       <div class="detail-area-header">
        <img class="msg-profile" src="{% if single_chat_user.get_avatar_url %}{{ single_chat_user.get_avatar_url }}{% else %}/media/images/default.jpg{% endif %}" alt="" />
-       <div class="detail-title">{{ single_chat_user.first_name }}</div>
+       <a href="{{ single_chat_user.get_absolute_url }}" class="detail-title">{{ single_chat_user.first_name }}</a>
        <div class="detail-buttons">
         <button class="detail-button">
          <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone">
@@ -86,7 +81,9 @@
        </div>
       </div>
       <div class="detail-changes">
-       <input type="text" placeholder="Search in Conversation">
+        <form action="{% url 'single-chat' single_chat_user.id %}">
+          <input type="text" placeholder="Search in Conversation" name="q">
+       </form>
        <div class="detail-change">
         Change Color
         <div class="colors">
@@ -111,21 +108,13 @@
         Shared photos
        </div>
        <div class="detail-photo-grid">
-        <img src="https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2168&q=80" />
-        <img src="https://images.unsplash.com/photo-1516085216930-c93a002a8b01?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80" />
-        <img src="https://images.unsplash.com/photo-1458819714733-e5ab3d536722?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=933&q=80" />
-        <img src="https://images.unsplash.com/photo-1520013817300-1f4c1cb245ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2287&q=80" />
-        <img src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2247&q=80" />
-        <img src="https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1300&q=80" />
-        <img src="https://images.unsplash.com/photo-1560393464-5c69a73c5770?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1301&q=80" />
-        <img src="https://images.unsplash.com/photo-1506619216599-9d16d0903dfd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2249&q=80" />
-        <img src="https://images.unsplash.com/photo-1481349518771-20055b2a7b24?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2309&q=80" />
-   
-        <img src="https://images.unsplash.com/photo-1473170611423-22489201d919?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2251&q=80" />
-        <img src="https://images.unsplash.com/photo-1579613832111-ac7dfcc7723f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80" />
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2189&q=80" />
+        {% for photo in shared_photos %}
+        <img src="{{ photo.url }}" />
+        {% endfor %}
        </div>
+       {% if shared_photos.count > 12 %}
        <div class="view-more">View More</div>
+       {% endif %}
       </div>
       <a href="{% url 'delete-single-chat' single_chat_user.id %}" class="follow-me" target="_blank">
        <span class="follow-text">
@@ -142,30 +131,9 @@
    {% endblock content %}
 
 {% block script %}
-<script src="{% static 'js/inbox.js' %}"></script>
 <script>
-  const url = `ws://127.0.0.1:8000/websocket/private/${ {{ single_chat_user.id }} }`;
-  const chat_websocket = new WebSocket(url);
-  const sendBTN = document.getElementById('sendButton');
-  const textData = document.getElementById('text-data');
-  const chatArea = document.getElementsByClassName('chat-area-main')[0];
-
-  const newMessage = chatArea.lastElementChild;
-  if (newMessage) newMessage.scrollIntoView({ behavior: "smooth" });
-
-  sendBTN.addEventListener('click', () => {
-    let message = textData.value;
-    chat_websocket.send(`{"type": "message", "message": "${ message }"}`)
-    textData.value = '';
-  });
-
-  chat_websocket.onmessage = (event) => {
-    let message = JSON.parse(event.data).message;
-    chatArea.insertAdjacentHTML("beforeend", message);
-
-    const newMessage = chatArea.lastElementChild;
-    newMessage.scrollIntoView({ behavior: "smooth" });
-  };
-
+  let user_status_wb = new WebSocket(`ws://127.0.0.1:8000/websocket/user/status/${ {{ request.user.id }} }`);
 </script>
+<script src="{% static 'js/inbox.js' %}"></script>
+<script src="{% static 'js/messageWb.js' %}"></script>
 {% endblock script %}

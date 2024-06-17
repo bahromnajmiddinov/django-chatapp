@@ -28,6 +28,7 @@
                 {% endif %}
                 <p class="profile-email"><b>Email:</b> {{ user.email }}</p>
                 <p class="profile-phone"><b>Phone Number:</b> {{ user.phone_number }}</p>
+                <p id="userStatus"><b>User Status:</b> {% if user.status %} <span style="color: green;">online</span>{% else %} <span style="color: red">offline</span>{% endif %}</p>
             </div>
         </div>
     </div>
@@ -36,5 +37,24 @@
 {% endblock content %}
 
 {% block script %}
+<script>
+    const userST = document.querySelector('#userStatus');
+    const urlWB = 'ws://127.0.0.1:8000/websocket/user/status';
+    let url = `${ urlWB }/${ {{ user.id }} }`;
+    let other_user_status_wb = new WebSocket(url);
+    other_user_status_wb.onmessage = (event) => {
+        let data = JSON.parse(event.data);
+        let status = data.status;
+        console.log(status)
+        if (status === true) {
+            userST.innerHTML = '<b>User Status:</b> <span style="color: green;">online</span>';
+        } else if (status === false) {
+            userST.innerHTML = '<b>User Status:</b> <span style="color: red;">offline</span>';
+        }
+    };
+</script>
+<script>
+    let user_status_wb = new WebSocket(`ws://127.0.0.1:8000/websocket/user/status/${ {{ request.user.id }} }`);
+</script>
 <script src="{% static 'js/inbox.js' %}"></script>
 {% endblock script %}

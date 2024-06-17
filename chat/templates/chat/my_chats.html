@@ -1,0 +1,18 @@
+{% extends 'chat/base.html' %}
+
+{% block chatarea %}
+<div class="converstations-area">
+    {% if any_chat %}
+    {% include 'includes/chats.html' %}
+    {% else %}
+    <h3 style="margin: 1rem;">
+        No chats found. Search new chats ...
+        <div class="search-bar">
+            <form action="{% url 'search-chats' %}">
+                <input type="text" placeholder="Search new chats ..." name="q" />
+            </form>
+        </div>
+    </h3>
+    {% endif %}
+    </div>
+{% endblock chatarea %}

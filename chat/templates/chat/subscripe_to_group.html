@@ -22,5 +22,8 @@
 {% endblock content %}
 
 {% block script %}
+<script>
+    let user_status_wb = new WebSocket(`ws://127.0.0.1:8000/websocket/user/status/${ {{ request.user.id }} }`);
+</script>
 <script src="{% static 'js/inbox.js' %}"></script>
 {% endblock script %}

@@ -54,3 +54,8 @@ class SingleChatMessage(models.Model):
     time = models.TimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)
     
+    @property
+    def is_image(self):
+        if self.files:
+            return self.files.name.split('.')[-1] in ['png', 'jpg', 'gif', 'jpeg']
+    

@@ -48,6 +48,7 @@ class Account(AbstractBaseUser):
     email           = models.EmailField(max_length=100, unique=True)
     phone_number    = models.CharField(max_length=50)
     description     = models.TextField(blank=True, null=True)
+    status          = models.BooleanField(default=True, blank=True, null=True)
 
     # required
     date_joined     = models.DateTimeField(auto_now_add=True)
@@ -64,8 +65,8 @@ class Account(AbstractBaseUser):
 
     @property
     def full_name(self):
-        if self.first_name is None and self.last_name is None:
-            return self.email
+        if not self.first_name and not self.last_name:
+            return self.username
         return f'{self.first_name} {self.last_name}'
 
     def __str__(self):

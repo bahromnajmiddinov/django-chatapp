@@ -1,9 +1,22 @@
-<div class="chat-msg {% if message_owner == maybe_owner %}owner{% endif %}">
+{% if maybe_owner %}
+<div class="chat-msg {% if maybe_owner == message.sender %}owner{% endif %}">
+{% else %}
+<div class="chat-msg {% if request.user == message.sender %}owner{% endif %}">
+{% endif %}
     <div class="chat-msg-profile">
-     <img class="chat-msg-img" src="{% if message_owner.get_avatar_url %}{{message_owner.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="">
+     <img class="chat-msg-img" src="{{message.sender.get_avatar_url}}" alt="">
      {% comment %} <div class="chat-msg-date">Message seen 2.45pm</div> {% endcomment %}
     </div>
     <div class="chat-msg-content">
-     <div class="chat-msg-text">{{ message }}</div>
+        {% if message.message %}
+        <div class="chat-msg-text">{{ message.message }}</div>
+        {% endif %}
+        {% if message.files %}
+        {% if message.is_image %}
+        <img style="height: 15rem;" src="{{ message.files.url }}" />
+        {% else %}
+        <a href="{{ message.files.url }}" style="text-decoration: underline;" target="_blank" class="chat-msg-text">{{ message.files.url }}</a>
+        {% endif %}
+        {% endif %}
     </div>
 </div>

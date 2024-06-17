@@ -11,8 +11,7 @@ class AccountEditForm(forms.ModelForm):
 
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
-        
-        allowed = ['1', '2', '3', '4', '5', '7', '8', '9', '0']
+        allowed = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
         for number in str(phone_number):
             if number not in allowed:
                 raise ValidationError('Only numbers are allowed')

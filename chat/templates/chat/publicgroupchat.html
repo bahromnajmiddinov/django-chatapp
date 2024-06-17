@@ -39,21 +39,17 @@
       </div>
       <div class="chat-area-main">
         {% for message in chat_messages %}
-        <div class="chat-msg {% if request.user == message.sender %}owner{% endif %}">
-          <div class="chat-msg-profile">
-            <img class="chat-msg-img" src="{% if message.sender.get_avatar_url %}{{message.sender.get_avatar_url}}{% else %}/media/images/default.jpg{% endif %}" alt="" />
-            {% comment %} <div class="chat-msg-date">Message seen 1.22pm</div> {% endcomment %}
-          </div>
-          <div class="chat-msg-content">
-            <div class="chat-msg-text">{{ message.message }}</div>
-        </div>
-      </div>
+        {% include 'chat/snippets/single-message.html' %}
         {% endfor %}
     </div>
     {% if is_member %}
       <div class="chat-area-footer">
-       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
-        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
+        <label for="file-input">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+         </svg>
+       </label>
+       <input style="display: none;" type="file" id="file-input" />
        <input id="text-data" type="text" placeholder="Type something here..." />
        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile">
         <circle cx="12" cy="12" r="10" />
@@ -90,40 +86,9 @@
    {% endblock content %}
 
 {% block script %}
-<script src="{% static 'js/inbox.js' %}"></script>
 <script>
-  const url = `ws://127.0.0.1:8000/websocket/public-group/${ '{{ username }}' }`;
-  const chat_websocket = new WebSocket(url);
-  const sendBTN = document.getElementById('sendButton');
-  const textData = document.getElementById('text-data');
-  const chatArea = document.getElementsByClassName('chat-area-main')[0];
-
-  const newMessage = chatArea.lastElementChild;
-  if (newMessage) newMessage.scrollIntoView({ behavior: "smooth" });
-
-  sendBTN.addEventListener('click', () => {
-    let message = textData.value;
-    chat_websocket.send(`{"type": "message", "message": "${ message }"}`);
-    textData.value = '';
-  });
-
-  chat_websocket.onmessage = (event) => {
-    let data = JSON.parse(event.data);
-    let type = data.type;
-    
-    if (type === 'online_status_handler') {
-      let online = data.online_members;
-      let oMC = document.getElementById('online-members-count');
-      oMC.innerHTML = online + ' online';
-    } else if (type === 'receiver') {
-      let message = data.message;
-      chatArea.insertAdjacentHTML("beforeend", message);
-  
-      const newMessage = chatArea.lastElementChild;
-      newMessage.scrollIntoView({ behavior: "smooth" });
-    }
-
-  };
-
+  let user_status_wb = new WebSocket(`ws://127.0.0.1:8000/websocket/user/status/${ {{ request.user.id }} }`);
 </script>
+<script src="{% static 'js/inbox.js' %}"></script>
+<script src="{% static 'js/messageWB.js' %}"></script>
 {% endblock script %}

@@ -6,4 +6,6 @@ ASGI_urlpatterns = [
     path('websocket/private/<user_id>', consumers.ChatConsumer.as_asgi()),
     path('websocket/public-group/<group_username>', consumers.PublicGroupChatConsumer.as_asgi()),
     path('websocket/private-group/<group_username>', consumers.PrivateGroupChatConsumer.as_asgi()),
+    
+    path('websocket/user/status/<user_id>', consumers.UserStatusConsumer.as_asgi()),
 ]

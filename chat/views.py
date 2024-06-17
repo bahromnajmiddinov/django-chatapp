@@ -7,6 +7,10 @@ from .models import Chat
 from .forms import PublicGroupForm, PrivateGroupForm
 
 
+def _image_filter(obj, counts=12):
+    return obj.message.filter(Q(files__endswith='.jpg') | Q(files__endswith='.png') | Q(files__endswith='.gif')| Q(files__endswith='.jpeg'))[:counts]
+
+
 @login_required(login_url='account_login')
 def chatapp_home(request):
     return render(request, 'chat/chatapphome.html')
@@ -32,18 +36,26 @@ def search_chats(request):
 
 @login_required(login_url='account_login')
 def single_chat(request, user_id):
+    search_query = request.GET.get('q')
+    
     if request.user.id == int(user_id):
         return redirect('my_profile')
     
     user = Account.objects.get(pk=user_id)
     single_chat = Chat.objects.filter(Q(members__in=[request.user, user]) & Q(type='OO')).first()
     single_chat_messages = []
+    shared_photos = []
     if single_chat:
-        single_chat_messages = single_chat.message.all()
+        if not search_query:
+            single_chat_messages = single_chat.message.all()
+        else:
+            single_chat_messages = single_chat.message.filter(Q(message__icontains=search_query) | Q(files__icontains=search_query))
+        shared_photos = _image_filter(single_chat)
 
     context = {
         'single_chat_user': user,
         'single_chat_messages': single_chat_messages,
+        'shared_photos': shared_photos,
     }
     return render(request, 'chat/single_chat.html', context)
 
@@ -131,7 +143,7 @@ def edit_group(request, group_username):
             form = PrivateGroupForm(request.POST, request.FILES, instance=group)
             if form.is_valid():
                 form.save()
-                return redirect('private-chat', form.username)
+                return redirect('private-chat', group_username)
     
     if group.type == 'PB':
         form = PublicGroupForm(instance=group)
@@ -148,8 +160,16 @@ def edit_group(request, group_username):
 
 @login_required(login_url='account_login')
 def public_group_chat(request, group_username):
+    search_query = request.GET.get('q')
+    
     group_chat = get_object_or_404(Chat, username=group_username, type='PB')
-    chat_messages = group_chat.message.all()
+    
+    if not search_query:
+        chat_messages = group_chat.message.all()
+    else:
+        chat_messages = group_chat.message.filter(Q(message__icontains=search_query) | Q(files__icontains=search_query))
+    
+    shared_photos = _image_filter(group_chat)
     is_member = group_chat.members.filter(pk=request.user.id).exists()
     
     all_members_count = group_chat.members.count()
@@ -168,12 +188,15 @@ def public_group_chat(request, group_username):
         'all_members_count': all_members_count,
         'member3': member3,
         'online_members': online_members,
+        'shared_photos': shared_photos,
     }
     return render(request, 'chat/publicgroupchat.html', context)
 
 
 @login_required(login_url='account_login')
 def private_group_chat(request, group_username):
+    search_query = request.GET.get('q')
+    
     group_chat = get_object_or_404(Chat, username=group_username, type='PR')
     
     if request.method == 'POST':
@@ -183,12 +206,17 @@ def private_group_chat(request, group_username):
     all_members_count = group_chat.members.count()
     member3 = group_chat.members.all()[:3]
     online_members = group_chat.online_members.count()
+    shared_photos = _image_filter(group_chat)
     
         
     if not is_member:
         return render(request, 'chat/subscripe_to_group.html')
     
-    chat_messages = group_chat.message.all()
+    if not search_query:
+        chat_messages = group_chat.message.all()
+    else:
+        chat_messages = group_chat.message.filter(Q(message__icontains=search_query) | Q(files__icontains=search_query))
+        
     context = {
         'group_chat': group_chat,
         'chat_messages': chat_messages,
@@ -197,6 +225,29 @@ def private_group_chat(request, group_username):
         'all_members_count': all_members_count,
         'member3': member3,
         'online_members': online_members,
+        'shared_photos': shared_photos,
     }
     return render(request, 'chat/privategroupchat.html', context)
+
+
+@login_required(login_url='account_login')
+def group_detail_area(request, group_username):
+    group_chat = get_object_or_404(Chat, username=group_username)
+    
+    return render(request, 'chat/chat_detail.html', {'group_chat': group_chat, 'detail_area_center': 'detail-area-center'})
+
+
+@login_required(login_url='account_login')
+def my_chats(request):
+    any_chat = request.user.chat.exists()
+    return render(request, 'chat/my_chats.html', {'any_chat': any_chat})
+
+
+@login_required(login_url='account_login')
+def leave_group(request, group_username):
+    group_chat = get_object_or_404(Chat, username=group_username)
+    group_chat.members.remove(request.user)
+    group_chat.save()
+    
+    return redirect('chatapp-home')
     

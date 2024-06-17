@@ -28,7 +28,8 @@ def profile_edit(request):
         form = AccountEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-    
+            return redirect('my_profile')
+        
     context = {
         'form': form,
     }

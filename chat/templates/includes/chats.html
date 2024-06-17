@@ -3,15 +3,33 @@
 {% for chat in request.user|get_users_chats %}
 {% if chat.type == 'OO' %}
 {% with other_user=chat|get_id_or_username:request.user.id %}
-<a class="msg online {% if single_chat_user.id == other_user.id %}active{% endif %}" href="{{ chat.get_absolute_url }}">
+<a class="msg {% if other_user.status %} online {% endif %}{% if single_chat_user.id == other_user.id %}active{% endif %} userId{{other_user.id}}" href="{{ chat.get_absolute_url }}">
     <img class="msg-profile" src="{{ other_user.get_avatar_url }}" alt="" />
     <div class="msg-detail">
         <div class="msg-username">{{ other_user.full_name }}</div>
         <div class="msg-content">
-            <span class="msg-message">{{ chat.get_last_message.message }}</span>
+            <span class="msg-message">{{ chat.get_last_message.message|slice:":20" }}</span>
             <span class="msg-date">{{ chat.get_last_message.created|timesince }}</span>
         </div>
     </div>
+    <script>
+        const userId = document.querySelector('.userId{{ other_user.id }}');
+        const urlWB = 'ws://127.0.0.1:8000/websocket/user/status';
+        let url = `${ urlWB }/${ {{ other_user.id }} }`;
+        let other_user_status_wb = new WebSocket(url);
+        other_user_status_wb.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            let status = data.status;
+            let userIdWB = data.currentUserId;
+            console.log(data);
+
+            if (status === true) {
+                userId.classList.add('online');
+            } else if (status === false) {
+                userId.classList.remove('online');
+            }
+        };
+    </script>
 </a>
 {% endwith %}
 {% else %}
@@ -28,7 +46,7 @@
     <div class="msg-detail">
         <div class="msg-username">{{ chat.name }}</div>
         <div class="msg-content">
-            <span class="msg-message">{{ chat.get_last_message.message }}</span>
+            <span class="msg-message">{{ chat.get_last_message.message|slice:":20" }}</span>
             <span class="msg-date">{{ chat.get_last_message.created|timesince }}</span>
         </div>
     </div>
