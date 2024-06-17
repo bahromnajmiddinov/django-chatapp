@@ -1,5 +1,7 @@
 # Django ChatAPP
 
+### Real-Time Chat Application with Django Channels
+
 1. Clone this repository:
 
    ```bash
