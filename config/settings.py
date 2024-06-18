@@ -35,7 +35,9 @@ if ENVIRONMENT == 'development':
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'nima-gap.up.railway.app']
+
+CSRF_TRUSTED_ORGINs = ['https://www.nima-gap.up.railway.app']
 
 INTERNAL_IPS = [
     '127.0.0.1',
