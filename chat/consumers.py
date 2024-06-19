@@ -37,7 +37,7 @@ class ChatConsumer(WebsocketConsumer):
                 decoded_data = base64.b64decode(file_object)
                 file_instance = ContentFile(decoded_data, name=f'message_file.{ file_format.split('/')[1] }')
             
-            chat = Chat.objects.filter(Q(members__in=[self.user, self.other_user]) & Q(type='OO')).first()
+            chat = Chat.objects.filter(Q(members__in=[self.user]) & Q(members__in=[self.other_user]) & Q(type='OO')).first()
             if chat is None:
                 chat = Chat.objects.create(type='OO', owner=self.user, name='single-chat')
                 chat.members.add(*[self.user, self.other_user])

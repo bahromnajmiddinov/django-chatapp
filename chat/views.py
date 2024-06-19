@@ -42,7 +42,7 @@ def single_chat(request, user_id):
         return redirect('my_profile')
     
     user = Account.objects.get(pk=user_id)
-    single_chat = Chat.objects.filter(Q(members__in=[request.user, user]) & Q(type='OO')).first()
+    single_chat = Chat.objects.filter(Q(members__in=[user]) & Q(members__in=[request.user]) & Q(type='OO')).first()
     single_chat_messages = []
     shared_photos = []
     if single_chat:
