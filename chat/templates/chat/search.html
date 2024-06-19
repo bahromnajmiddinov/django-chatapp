@@ -85,7 +85,7 @@
 
 {% block script %}
 <script>
-    let user_status_wb = new WebSocket(`ws://{{ domain }}/websocket/user/status/${ {{ request.user.id }} }`);
+    let user_status_wb = new WebSocket(`wss://{{ domain }}/websocket/user/status/${ {{ request.user.id }} }`);
 </script>
 <script src="{% static 'js/inbox.js' %}"></script>
 {% endblock script %}

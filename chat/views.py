@@ -108,6 +108,7 @@ def create_private_group(request):
             form.type = 'PR'
             form.owner = request.user
             form.save()
+            form.members.add(request.user)
             return redirect('private-chat', form.username)
         
     context = {
