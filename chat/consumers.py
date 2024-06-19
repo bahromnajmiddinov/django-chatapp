@@ -58,7 +58,7 @@ class ChatConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_discard)(self.chat_username, self.channel_name)
     
     def receiver(self, data):
-        message_object = SingleChatMessage.objects.get(data['message_id'])
+        message_object = SingleChatMessage.objects.get(pk=data['message_id'])
         message = render_to_string('chat/snippets/single-message.html', context={ 'message': message_object, 'maybe_owner': self.user })
         
         data['message'] = message
