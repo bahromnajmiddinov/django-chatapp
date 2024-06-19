@@ -207,13 +207,13 @@ class UserStatusConsumer(WebsocketConsumer):
         
         if self.abs_user == self.user:
             self.change_status(online=True)
-        async_to_sync(self.channel_layer.group_add)(self.abs_user.username, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(str(self.abs_user.username), self.channel_name)
     
     def disconnect(self, code):
         time.sleep(3)
         if self.abs_user == self.user:
             self.change_status(online=False)
-        async_to_sync(self.channel_layer.group_discard)(self.abs_user.username, self.channel_name)
+        async_to_sync(self.channel_layer.group_discard)(str(self.abs_user.username), self.channel_name)
     
     def change_status(self, online=False):
         self.user.status = online
