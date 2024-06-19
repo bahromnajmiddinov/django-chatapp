@@ -14,7 +14,7 @@
     </div>
     <script>
         const userId = document.querySelector('.userId{{ other_user.id }}');
-        const urlWB = 'ws://127.0.0.1:8000/websocket/user/status';
+        const urlWB = 'ws://{{ domain }}/websocket/user/status';
         let url = `${ urlWB }/${ {{ other_user.id }} }`;
         let other_user_status_wb = new WebSocket(url);
         other_user_status_wb.onmessage = (event) => {

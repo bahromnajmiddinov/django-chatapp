@@ -5,7 +5,7 @@ const singleChat = currentUrl.split('/')[5];
 
 const group = (singleChat === 'single-chat') ? '' : '-group'
 
-const urlwb = `ws://127.0.0.1:8000/websocket/${ chatType }${ group }/${ chatUsername }`;
+const urlwb = `ws://nima-gap.up.railway.app/websocket/${ chatType }${ group }/${ chatUsername }`;
 const chat_websocket = new WebSocket(urlwb);
 const sendBTN = document.getElementById('sendButton');
 const textData = document.getElementById('text-data');
