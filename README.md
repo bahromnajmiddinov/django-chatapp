@@ -5,7 +5,7 @@
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/bahromnajmiddinov/taskly-app.git
+   git clone https://github.com/bahromnajmiddinov/django-chatapp
 
 
 2. Create a virtual environment (recommended for isolation):
